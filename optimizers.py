@@ -15,6 +15,15 @@ import time
 import random
 
 
+is_cuda = torch.cuda.is_available()
+if is_cuda:
+    device = torch.device("cuda")
+    print("GPU is available")
+else:
+    device = torch.device("cpu")
+    print("GPU not available, CPU used")
+
+
 class RGD(Optimizer):
     ''' Implementation of stochastic Riemannian gradient descent for orthogonal RNN training.
     Each parameter is supposed to have an "orth" attribute. If param.orth = 1, the parameter is assumed to
@@ -63,6 +72,7 @@ class RCD_GS(Optimizer):
             else:
                 A = torch.mm(torch.transpose(p.data,0,1),d_p.data)
                 Riema_grad = 0.5*torch.add(A,torch.transpose(A,0,1),alpha = -1)
+                Omega = torch.triu(torch.abs(Riema_grad), diagonal=1)
                 m,indx = torch.max(Omega,0)
                 m2,j2 =  torch.max(m,0)
                 j1 = indx[j2]
@@ -100,17 +110,17 @@ class RCD_GS_block(Optimizer):
             else:
                 A = torch.mm(torch.transpose(p.data,0,1),d_p.data)
                 Riema_grad = 0.5*torch.add(A,torch.transpose(A,0,1),alpha = -1)
-                Omegabis = torch.triu(torch.abs(Riema_grad), diagonal=1)
-                Omega2 = torch.zeros_like(Omegabis)
-                Omegabis = torch.add(Omegabis,-torch.eye(p.data.size()[0]).to(device))
+                Omega = torch.triu(torch.abs(Riema_grad), diagonal=1)
+                Omega2 = torch.zeros_like(Omega)
+                Omega = torch.add(Omega,-torch.eye(p.data.size()[0]).to(device))
                 for i in range(group['nu']):
-                    m,indx = torch.max(Omegabis,0)
+                    m,indx = torch.max(Omega,0)
                     m2,j2 =  torch.max(m,0)
                     j1 = indx[j2]
                     Omega2[j1][j2] = Riema_grad[j1][j2]
                     Omega2[j2][j1] = Riema_grad[j2][j1]
-                    Omegabis[j1][j2] = -1
-                    Omegabis[j2][j1] = -1
+                    Omega[j1][j2] = -1
+                    Omega[j2][j1] = -1
                 p.data = torch.mm(p.data,torch.matrix_exp(-group['lr']*Omega2))
         return loss
 
