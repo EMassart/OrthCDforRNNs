@@ -3,7 +3,6 @@
 """
 This file contains the implementation of the optimizers described in the paper "Coordinate descent on the orthogonal group for recurrent
 neural network training".
-@author: EMassart
 @version: May 2021
 """
 
@@ -21,7 +20,6 @@ class RGD(Optimizer):
     Each parameter is supposed to have an "orth" attribute. If param.orth = 1, the parameter is assumed to
     lie on the orthogonal group, and is updated using a Riemannian gradient descent step on the orthogonal group.
     Otherwise, a simple SGD update is used.
-    author: EMassart
     version: May 2021'''
 
     def __init__(self, params, lr):
@@ -48,7 +46,6 @@ class RCD_GS(Optimizer):
     for selecting the coordinate at each iteration. 
     Each parameter is supposed to have an "orth" attribute. If param.orth = 1, the parameter is assumed to lie on the orthogonal group, and updated 
     using a Riemannian coordinate descent step on the orthogonal group. Otherwise, a simple SGD update is used.
-    author: EMassart
     version: May 2021'''
     
     def __init__(self, params, lr):
@@ -86,7 +83,6 @@ class RCD_GS_block(Optimizer):
     Note that, since the step parametrization relying on Givens matrices requires coordinates to affect different columns, this implementation still 
     relies on the matrix exponential operation. A smarter coordinate selection strategy should be implemented in order to take benefits from the 
     Givens representation of the update rule.
-    author: EMassart
     version: May 2021'''
     
     def __init__(self, params, lr, nu):
@@ -124,7 +120,6 @@ class RCD_uniform(Optimizer):
     for selecting the coordinate at each iteration. 
     Each parameter is supposed to have an "orth" attribute. If param.orth = 1, the parameter is assumed to lie on the orthogonal group, and updated 
     using a Riemannian coordinate descent step on the orthogonal group. Otherwise, a simple SGD update is used.
-    author: EMassart
     version: May 2021'''
     
     def __init__(self, params, lr):
